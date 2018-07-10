@@ -39,7 +39,9 @@ export default {
   font-family: mainFont;
   src: url("./assets/gothamrnd-medium.ttf");
 }
-
+.border-all *{
+  border:solid 1px red
+}
 .opacity {
   opacity: 0.3;
 }

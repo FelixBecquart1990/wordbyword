@@ -20,7 +20,7 @@ export default {
             snapshot.forEach(word => {
               listWords.push(Object.assign({ wordUid: word.id }, word.data()));
             });
-            console.log(listWords)
+            //console.log(listWords)
             commit('SET_WORDS', listWords)
           },
           error => {
