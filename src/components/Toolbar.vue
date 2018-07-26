@@ -1,6 +1,6 @@
 <template>
   <div class="info">
-    <v-navigation-drawer v-model="drawer" absolute temporary>
+    <v-navigation-drawer v-model="drawer" absolute temporary style="position:fixed; top:0; left:0;">
       <v-toolbar flat class="transparent" height="64" @click="$router.push('/profile')" style="cursor:pointer">
         <v-list class="pa-0">
           <v-list-tile avatar>
