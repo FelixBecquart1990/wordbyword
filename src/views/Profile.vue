@@ -1,6 +1,6 @@
 <template>
 <div>
-  <toolbar/>
+  <toolbar style="margin-bottom:64px"/>
   <v-container fill-height fluid style="border-bottom:solid 1px rgba(0,0,0,0.07); background-color:white; min-height:100px">
       <v-layout column align-center justify-center>
         <v-flex>

@@ -39,8 +39,8 @@ export default {
   font-family: mainFont;
   src: url("./assets/gothamrnd-medium.ttf");
 }
-.border-all *{
-  border:solid 1px red
+.border-all * {
+  border: solid 1px red;
 }
 .opacity {
   opacity: 0.3;
@@ -81,7 +81,8 @@ export default {
 }
 @keyframes bounce-in {
   0% {
-    transform: scale(0);
+    transform: translateY(10px);
+    opacity: 0;
   }
   100% {
     transform: scale(1);

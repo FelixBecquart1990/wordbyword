@@ -1,7 +1,7 @@
 <template>
 <div>
 <transition name="slide-fade">
-  <div v-if="!notificationsGranted()">
+  <div v-if="!notificationsActivated">
     <v-container fluid style="padding:8px">
       <v-layout align-center justify-center @click="notificationsRequest()">
         <v-card class="table" style="padding:15px">
@@ -18,7 +18,7 @@
               </v-list-tile-content>
 
               <v-list-tile-content style="width:60px;padding-left:13px;position:absolute; right:5px;padding-top:11px;">
-                <v-switch color="primary" v-model="activateNotifications"></v-switch>
+                <v-switch color="primary" v-model="notificationsActivated"></v-switch>
               </v-list-tile-content>
             </v-list-tile>
 
@@ -50,40 +50,61 @@ export default {
   name: "AllowNotifications",
   data() {
     return {
-      activateNotifications: false,
       timer: 3500,
       snackbar: false,
-      snackbarText: ""
+      snackbarText: "",
+      notificationsActivated: true
     };
   },
   computed: {
     ...mapState(["user"])
   },
+  created() {
+    this.notificationsGranted();
+    fb.messaging.onTokenRefresh(token => {
+      this.refreshToken();
+    });
+  },
   methods: {
+    refreshToken() {
+      self = this;
+      return fb.messaging.getToken().then(function(token) {
+        console.log(token);
+        fb.usersCollection
+          .doc(self.user.currentUser.uid)
+          .update({
+            token: token
+          })
+          .then(
+            self.$store.commit("SET_SNACKBAR", "Smart reminders activated")
+          );
+        self.notificationsGranted();
+      });
+    },
     notificationsGranted() {
-      if ("Notification" in window && "serviceWorker" in navigator) {
-        return Notification.permission == "granted";
+      if (
+        "Notification" in window &&
+        "serviceWorker" in navigator &&
+        Notification.permission == "granted"
+      ) {
+        //console.log("notificationsGranted: ", Notification.permission);
       } else {
-        return false;
+        //console.log("notification not activated");
+        return (this.notificationsActivated = false);
       }
     },
     notificationsRequest() {
-      this.activateNotifications = false;
       self = this;
-      Notification.requestPermission(function(result) {
-        console.log("User Choice", result);
-        if (result !== "granted") {
-          console.log("No notification permission granted!");
-        } else {
-          self.notificationsGranted();
-          self.activateNotifications = true;
-          self.snackbar = true;
-          self.snackbarText = "Smart reminders activated";
-          fb.usersCollection.doc(self.user.currentUser.uid).update({
-            notificationsGranted: true
-          });
-        }
-      });
+      fb.messaging
+        .requestPermission()
+        .then(function() {
+          self.refreshToken();
+        })
+        .catch(function(err) {
+          //gestion du refus (modal pour inviter l'utilisateur à réactiver les notifications manuellement)
+          console.log("error occured");
+          self.notificationsActivated = false;
+        });
     }
   }
 };
@@ -92,7 +113,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .slide-fade-enter-active {
-  transition: all 0s ease;
+  transition: all 0.6s ease;
 }
 .slide-fade-leave-active {
   transition: all 0.6s ease;

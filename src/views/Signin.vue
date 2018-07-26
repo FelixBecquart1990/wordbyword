@@ -85,7 +85,7 @@ export default {
             .set({
               createdOn: new Date(),
               language: "English",
-              notificationsFrequency: "every 2 hours"
+              notificationsFrequency: "every day"
             })
             .then(() => {
               this.$store.dispatch("fetchUserProfile");

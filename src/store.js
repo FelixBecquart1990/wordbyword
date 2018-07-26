@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import snackbar from './store/snackbar'
 import user from './store/user'
 import words from './store/words'
+import ideas from './store/ideas'
 import utilities from './store/utilities'
 
 const fb = require('./firebaseConfig.js')
@@ -48,6 +49,7 @@ export const store = new Vuex.Store({
     snackbar,
     user,
     words,
-    utilities
+    utilities,
+    ideas
   }
 })

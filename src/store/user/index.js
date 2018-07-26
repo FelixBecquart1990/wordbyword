@@ -21,9 +21,14 @@ export default {
   },
   actions: {
     fetchUserProfile({ commit, state, dispatch }) {
-      fb.usersCollection.doc(state.currentUser.uid).get().then(res => {
-        commit('SET_USER_PROFILE', res.data())
+      if (localStorage.userProfile) {
+        commit('SET_USER_PROFILE', JSON.parse(localStorage.getItem("userProfile")))
+      }
+      fb.usersCollection.doc(state.currentUser.uid).get().then(user => {
+        commit('SET_USER_PROFILE', user.data())
         dispatch("getWords");
+        dispatch("getIdeas");
+        localStorage.setItem("userProfile", JSON.stringify(user.data()));
       }).catch(err => {
         console.log(err)
       })

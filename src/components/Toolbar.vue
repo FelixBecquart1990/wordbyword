@@ -65,7 +65,7 @@
                   <v-icon color="secondary">language</v-icon>
                 </v-list-tile-action>
                 <v-list-tile-content>
-                  <v-list-tile-title class="secondary--text">Learning language : {{user.userProfile.language}}</v-list-tile-title>
+                  <v-list-tile-title class="secondary--text">Learning language : {{user.userProfile.language || "English"}}</v-list-tile-title>
                 </v-list-tile-content>
               </v-list-tile>
 
@@ -95,7 +95,8 @@
     <v-toolbar
     height="64"
       class="elevation-0"
-      style="border-bottom:solid 1px rgba(0,0,0,0.07);background-color:white"
+      style="border-bottom:solid 1px rgba(0,0,0,0.07);background-color:white;"
+      fixed
     >
       <v-toolbar-side-icon color="secondary--text" @click.stop="drawer = !drawer"></v-toolbar-side-icon>
      
@@ -146,7 +147,6 @@
 import { mapState } from "vuex";
 const fb = require("../firebaseConfig.js");
 
-
 export default {
   name: "App",
   data() {
@@ -157,17 +157,17 @@ export default {
       drawer: false,
       notificationsFrequencyList: [
         {
-          title: "Every 15 minutes",
-          value: "every 15 minutes"
+          title: "Every 30 minutes",
+          value: "every 30 minutes"
         },
-        {
-          title: "Every hour",
-          value: "every hour"
-        },
-        {
-          title: "Every 2 hours",
-          value: "every 2 hours"
-        },
+        // {
+        //   title: "Every hour",
+        //   value: "every hour"
+        // },
+        // {
+        //   title: "Every 2 hours",
+        //   value: "every 2 hours"
+        // },
         {
           title: "Every day",
           value: "every day"
@@ -194,6 +194,16 @@ export default {
       title: "Word by word"
     };
   },
+  created() {
+    self = this;
+    fb.messaging.onMessage(function(payload) {
+      //console.log('onMessage: ', payload)
+      self.$store.commit(
+        "SET_SNACKBAR",
+        payload.notification.title + "\n" + payload.notification.body
+      );
+    });
+  },
   components: {
     Snackbar: () => import("@/components/Snackbar"),
     AddToHomeScreen: () => import("@/components/AddToHomeScreen")
@@ -209,10 +219,7 @@ export default {
     },
     modifyNotificationsFrenquency(item) {
       //this.$store.commit("SET_NOTIFICATIONS_FREQUENCY", item.value);
-      this.$store.commit(
-        "SET_SNACKBAR",
-        "Smart reminders " + item.value
-      );
+      this.$store.commit("SET_SNACKBAR", "Smart reminders " + item.value);
       fb.usersCollection.doc(this.user.currentUser.uid).update({
         notificationsFrequency: item.value
       });

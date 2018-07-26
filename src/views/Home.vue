@@ -1,6 +1,6 @@
 <template>
 <div>
-  <toolbar/>
+  <toolbar style="margin-bottom:64px"/>
   <v-container fill-height fluid style="border-bottom:solid 1px rgba(0,0,0,0.07); background-color:white; min-height:100px">
       <v-layout column align-center justify-center>
         <v-flex>
@@ -30,7 +30,7 @@
     </v-container>
 
 <transition name="bounce">
-  <v-container v-if="words.length != 0" fluid style="padding:8px">
+  <v-container  v-if="words.length != 0"  fluid style="padding:8px">
         <v-layout align-center justify-center>
         <v-card class="table">
           
@@ -44,7 +44,15 @@
                     single-line
                     v-model.trim="newWord"
                   ></v-text-field>
-                <v-list-tile-sub-title  class="secondary--text"></v-list-tile-sub-title>
+                <div v-if="loader">
+                  <v-progress-circular
+                  :size="15"
+                  :width="2"
+                  color="primary"
+                  indeterminate
+                  style="position:absolute;top:3px;right:10px;"
+                  ></v-progress-circular>
+                </div>
               </v-list-tile-content>
               <v-list-tile-content style="max-width:120px;position:absolute; right:5px">
             <v-tooltip top>
@@ -61,20 +69,23 @@
 
           <template v-for="(word, index) in filteredWords" v-if="!hasBeenReportedByUser(index)">
             <transition name="slide-fade" :key="index">
-            <v-list-tile @click="">
+            <v-list-tile @click="" style="border-top:solid 1px rgba(0,0,0,0.07)">
               <v-list-tile-content style="max-width:calc(100vw - 140px)" @click="openModal(index, word)">
                 <div>
-                <v-list-tile-title style="color:#7B8790" :class="{'primary--text':word.userUid == user.uid}">
+                <v-list-tile-title style="color:#7B8790" :class="{'primary--text':word.userUid == user.currentUser.uid}">
                   {{word.word}}
                   <span v-if="word.createdOn.seconds * 1000 > new Date().getTime() - 1000*60*60*24 " class="chips-new warning--text">new</span>
                 </v-list-tile-title>
-                <v-list-tile-sub-title  class="secondary--text" v-html="word.context"></v-list-tile-sub-title>
+                <v-list-tile-sub-title  style="color:#7B8790" :class="{'primary--text':word.userUid == user.currentUser.uid}" v-html="word.context"></v-list-tile-sub-title>
+                <v-list-tile-sub-title  style="color:#7B8790;opacity:0.6;margin-top:-5px" :class="{'primary--text':word.learners[user.currentUser.uid]}">
+                  <span style="font-size:11px">{{ numberOfLearners(word.learners) }} <v-icon style="color:#7B8790;font-size:13px;margin-top:-3px" :class="{'primary--text':word.learners[user.currentUser.uid]}">school</v-icon></span>
+                </v-list-tile-sub-title>
                 </div>
               </v-list-tile-content>
 
 
 
-              <v-list-tile-content style="width:60px;padding-left:13px;position:absolute; right:5px;padding-top:20px;">
+              <v-list-tile-content style="width:60px;padding-left:15px;position:absolute; right:5px;padding-top:20px;">
                 <v-switch color="primary" value :input-value="wordIsBeingLearned(index)" @click="switcher(index, word)"></v-switch>
               </v-list-tile-content>
 
@@ -124,7 +135,7 @@
     </v-dialog>
 
       <v-dialog v-model="modalWord" hide-overlay max-width="290">
-    <v-card class="card-modal">
+    <v-card v-if="currentWord.userUid != user.currentUser.uid" class="card-modal">
       <v-card-title class="headline secondary--text">
         {{currentWord.word}}
       </v-card-title>
@@ -136,6 +147,20 @@
           <span @click.prevent="report()" style="text-decoration:underline;font-size:13px;opacity:0.6;" class="secondary--text">report</span>
         </div>
       </v-card-text>
+      </v-card>
+      <v-card v-else>
+        <v-card-text>
+          <v-text-field v-model="currentWord.word" prepend-icon="stars" label="Word" type="text"></v-text-field>
+          <v-text-field v-model="currentWord.context" prepend-icon="short_text" label="Sentence with this word" type="text"></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+        <v-spacer></v-spacer>
+        <transition name="fade">
+          <v-chip v-if="currentWord.word && currentWord.context" color="primary" text-color="white" style="width:105px;text-align:center;margin-right:10px;margin-top:-20px" class="pointer" @click="modifyWord()">
+            <span class="pointer" style="text-align:center;width:80px;">Modify</span>
+          </v-chip>
+        </transition>
+        </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -172,6 +197,9 @@ export default {
     words() {
       return this.$store.state.words.words;
     },
+    loader() {
+      return this.$store.state.words.loader;
+    },
     filteredWords() {
       return this.words.filter(word => {
         return word.word
@@ -188,6 +216,9 @@ export default {
     }
   },
   methods: {
+    numberOfLearners(learners) {
+      return Object.keys(learners).length;
+    },
     test() {
       console.log("okiiiii");
     },
@@ -202,8 +233,14 @@ export default {
       } else {
         for (let i = 0, len = this.filteredWords.length; i < len; i++) {
           return (
-            this.filteredWords[i].word.toLowerCase() !=
-            this.newWord.toLowerCase()
+            this.filteredWords[i].word
+              .toLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "") !=
+            this.newWord
+              .toLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
           );
         }
       }
@@ -215,27 +252,38 @@ export default {
     },
     wordIsBeingLearned(index) {
       return (
-        this.find(index, "learners").indexOf(this.user.currentUser.uid) > -1
+        //this.filteredWords[index]["learners"].indexOf(this.user.currentUser.uid) > -1
+        this.filteredWords[index].learners[this.user.currentUser.uid]
       );
     },
-    find(index, type) {
-      return this.filteredWords[index][type];
+    modifyWord() {
+      fb.wordsCollection
+        .doc(this.currentWord.wordUid)
+        .update(this.currentWord)
+        .catch(err => {
+          console.log(err);
+        });
+      this.$store.commit("SET_SNACKBAR", "Your word has been modified");
+
+      this.modalWord = false;
     },
     addNewWord() {
       if (this.newWord) {
-        fb.wordsCollection
-          .add({
-            word: this.newWord,
-            context: this.newContext,
-            learners: [this.user.currentUser.uid],
-            reported: [],
-            userUid: this.user.currentUser.uid,
-            createdOn: new Date(),
-            language: this.user.userProfile.language
-          })
-          .catch(err => {
-            console.log(err);
-          });
+        let wordDetails = {
+          word: this.newWord,
+          context: this.newContext,
+          //learners: [this.user.currentUser.uid],
+          learners: {},
+          reported: [],
+          userUid: this.user.currentUser.uid,
+          createdOn: new Date(),
+          language: this.user.userProfile.language
+        };
+        wordDetails.learners[this.user.currentUser.uid] = true;
+        //console.log(wordDetails)
+        fb.wordsCollection.add(wordDetails).catch(err => {
+          console.log(err);
+        });
         this.$store.commit(
           "SET_SNACKBAR",
           "Congratulation, your new word has been added"
@@ -254,13 +302,21 @@ export default {
         .update({ reported: this.words[this.currentIndex].reported });
     },
     switcher(index, word) {
-      if (this.wordIsBeingLearned(index)) {
+      /*if (this.wordIsBeingLearned(index)) {
         this.words[index].learners.splice(
-          this.find(index, "learners").indexOf(this.user.currentUser.uid),
+          this.filteredWords[index]["learners"].indexOf(this.user.currentUser.uid),
           1
         );
       } else {
         this.words[index].learners.push(this.user.currentUser.uid);
+      }
+      fb.wordsCollection
+        .doc(word.wordUid)
+        .update({ learners: this.words[index].learners });*/
+      if (this.filteredWords[index].learners[this.user.currentUser.uid]) {
+        delete this.words[index].learners[this.user.currentUser.uid];
+      } else {
+        this.words[index].learners[this.user.currentUser.uid] = true;
       }
       fb.wordsCollection
         .doc(word.wordUid)
@@ -273,6 +329,14 @@ export default {
 <style scoped>
 .chips-new {
   background-color: #5ebcee;
+  border-radius: 9px;
+  font-size: 10px;
+  padding: 3px 6px;
+  margin-left: 6px;
+}
+.chips-learners {
+  height: 20px;
+  border: solid 1px #7b8790;
   border-radius: 9px;
   font-size: 10px;
   padding: 3px 6px;

@@ -1,8 +1,8 @@
 <template>
 <div>
-  <toolbar/>
-  <v-container v-if="ideas" fill-height fluid style="border-bottom:solid 1px rgba(0,0,0,0.07); background-color:white; min-height:100px">
-      <v-layout column align-center justify-center>
+  <toolbar style="margin-bottom:64px"/>
+  <v-container fill-height fluid style="border-bottom:solid 1px rgba(0,0,0,0.07); background-color:white; min-height:100px">
+      <v-layout column align-center justify-center >
         <v-flex>
           <h2 class="secondary--text" style="font-weight:normal;text-align:center" :class="{'text-xs-left':$vuetify.breakpoint.xsOnly}">Your ideas to improve <span class="primary--text">Word by word</span></h2>
         </v-flex>
@@ -13,7 +13,7 @@
   </v-container>
 
     <v-container v-if="ideas.length == 0" style="margin-top:70px">
-      <div class="loading">
+      <div class="loading"  @click="test()" >
         <v-progress-circular
           :size="80"
           :width="1"
@@ -25,7 +25,7 @@
     </v-container>
 
 <transition name="bounce">
-    <v-container fluid style="padding:8px">
+    <v-container v-if="ideas.length != 0" fluid style="padding:8px">
         <v-layout align-center justify-center>
         <v-card class="table">
           
@@ -118,39 +118,51 @@ import { mapState } from "vuex";
 const fb = require("../firebaseConfig.js");
 
 export default {
-  name: "Home",
+  name: "Ideas",
   data() {
     return {
       idea: "",
       modalIdea: false,
       modalReported: false,
       newIdea: "",
-      ideas: []
+      //ideas: []
     };
   },
-  created() {
+  /*created() {
     self = this;
     fb.ideasCollection.orderBy("votesSum", "desc").onSnapshot(
-      function(snapshot) {
+      snapshot => {
         let listIdeas = [];
         snapshot.forEach(idea => {
           listIdeas.push(Object.assign({ ideaUid: idea.id }, idea.data()));
         });
-        self.ideas = listIdeas;
+        return listIdeas;
       },
-      function(error) {
+      error => {
         console.log(error);
       }
     );
-  },
+  },*/
+  /*watch: {
+    ideas: function() {
+      console.log(this.ideas);
+    }
+  },*/
   computed: {
-    ...mapState(["user"])
+    ...mapState(["user"]),
+    ideas() {
+      //console.log(this.$store.state.ideas.ideas)
+      return this.$store.state.ideas.ideas;
+    }
   },
   components: {
     Snackbar: () => import("@/components/Snackbar"),
     Toolbar: () => import("@/components/Toolbar")
   },
   methods: {
+    test() {
+      console.log(this.ideas);
+    },
     openModal(idea) {
       this.idea = idea.idea;
       this.modalIdea = true;
