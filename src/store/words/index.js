@@ -35,24 +35,24 @@ export default {
       next.get().then(function (documentSnapshots) {
         // Get the last visible document
         var lastVisible = documentSnapshots.docs[documentSnapshots.docs.length - 1];
-        console.log("last", lastVisible);
+        // console.log("last", lastVisible);
         commit('SET_LAST_VISIBLE', lastVisible)
 
         documentSnapshots.forEach((word) => {
-          console.log(`${word.id} => ${word.data()}`);
+          // console.log(`${word.id} => ${word.data()}`);
           listWords.push(Object.assign({ wordUid: word.id }, word.data()));
         });
-        console.log(listWords)
+        // console.log(listWords)
         commit('SET_WORDS', state.words.concat(listWords))
         commit('SET_IS_GETTING_NEXT_WORDS', false)
 
       })
     },
     getWords({ commit, getters, state }) {
-      // commit('SET_LOADER', true)
-      // if (localStorage.listWords) {
-      //   commit('SET_WORDS', JSON.parse(localStorage.getItem("listWords")))
-      // }
+      commit('SET_LOADER', true)
+      if (localStorage.listWords) {
+        commit('SET_WORDS', JSON.parse(localStorage.getItem("listWords")))
+      }
       let listWords = [];
 
       var first = fb.wordsCollection
@@ -63,16 +63,17 @@ export default {
       first.get().then(function (documentSnapshots) {
         // Get the last visible document
         var lastVisible = documentSnapshots.docs[documentSnapshots.docs.length - 1];
-        console.log("last", lastVisible);
+        // console.log("last", lastVisible);
         commit('SET_LAST_VISIBLE', lastVisible)
 
         documentSnapshots.forEach((word) => {
-          console.log(`${word.id} => ${word.data()}`);
+          // console.log(`${word.id} => ${word.data()}`);
           listWords.push(Object.assign({ wordUid: word.id }, word.data()));
         });
-        console.log(listWords)
-
+        // console.log(listWords)
+        commit('SET_LOADER', false)
         commit('SET_WORDS', listWords)
+        localStorage.setItem("listWords", JSON.stringify(listWords));
       })
 
 
