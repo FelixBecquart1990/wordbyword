@@ -129,7 +129,7 @@ export default {
     };
   },
   /*created() {
-    self = this;
+    let self = this;
     fb.ideasCollection.orderBy("votesSum", "desc").onSnapshot(
       snapshot => {
         let listIdeas = [];

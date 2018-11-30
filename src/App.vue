@@ -35,6 +35,10 @@ export default {
   text-decoration: none;
 }
 
+.selectable{
+  user-select: auto !important
+}
+
 @font-face {
   font-family: mainFont;
   src: url("./assets/gothamrnd-medium.ttf");

@@ -67,7 +67,7 @@ export default {
   },
   methods: {
     refreshToken() {
-      self = this;
+      let self = this;
       return fb.messaging.getToken().then(function(token) {
         console.log(token);
         fb.usersCollection
@@ -94,7 +94,7 @@ export default {
       }
     },
     notificationsRequest() {
-      self = this;
+      let self = this;
       fb.messaging
         .requestPermission()
         .then(function() {

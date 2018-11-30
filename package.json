@@ -12,6 +12,7 @@
     "firebase": "^5.2.0",
     "register-service-worker": "^1.0.0",
     "vue": "^2.5.16",
+    "vue-clipboard2": "^0.2.1",
     "vue-router": "^3.0.1",
     "vuetify": "^1.0.19",
     "vuex": "^3.0.1"

@@ -18,6 +18,9 @@ export default {
           snapshot.forEach(idea => {
             listIdeas.push(Object.assign({ ideaUid: idea.id }, idea.data()));
           });
+          listIdeas = listIdeas.filter(function (data) {
+            return data.reported.length < 3
+          });
           commit('SET_IDEAS', listIdeas)
         },
         error => {

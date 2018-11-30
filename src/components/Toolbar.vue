@@ -195,7 +195,7 @@ export default {
     };
   },
   created() {
-    self = this;
+    let self = this;
     fb.messaging.onMessage(function(payload) {
       //console.log('onMessage: ', payload)
       self.$store.commit(

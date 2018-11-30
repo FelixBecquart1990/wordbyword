@@ -85,7 +85,6 @@ exports.every30Minutes = functions.https.onRequest((request, response) => {
                                             tag: 'one-notification-at-a-time',
                                             silent: "true",
                                             color: "#5EBCEE",
-                                            image: "https://media.licdn.com/dms/image/C4E03AQGkJwD4e6kMGQ/profile-displayphoto-shrink_200_200/0?e=1538006400&v=beta&t=ya5f76UqFq_H4oWsbnp3XvFQq68v6Y406CDqWdaTJm4",
                                             badge: 'https://firebasestorage.googleapis.com/v0/b/wordbywordapp.appspot.com/o/favicon-16x16.png?alt=media&token=c4fb7368-83d5-4586-a7a8-9a11938c02ef',
                                             icon: 'https://firebasestorage.googleapis.com/v0/b/wordbywordapp.appspot.com/o/android-chrome-192x192.png?alt=media&token=f75e9376-0d10-4dd7-8f5d-5241accee641'
                                         }
@@ -160,6 +159,7 @@ exports.everyDay = functions.https.onRequest((request, response) => {
                                         notification: {
                                             title: word.word,
                                             body: word.context,
+                                            click_action: "http://wordbywordapp.firebaseapp.com",
                                             tag: 'one-notification-at-a-time',
                                             silent: "true",
                                             color: "#5EBCEE",

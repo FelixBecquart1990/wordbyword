@@ -7,6 +7,10 @@ import {store} from './store'
 const fb = require('./firebaseConfig.js')
 import './registerServiceWorker'
 
+import VueClipboard from 'vue-clipboard2'
+
+Vue.use(VueClipboard)
+
 Vue.config.productionTip = false
 
 
