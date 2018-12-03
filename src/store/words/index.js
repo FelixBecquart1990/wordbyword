@@ -50,9 +50,9 @@ export default {
     },
     getWords({ commit, getters, state }) {
       commit('SET_LOADER', true)
-      if (localStorage.listWords) {
-        commit('SET_WORDS', JSON.parse(localStorage.getItem("listWords")))
-      }
+      // if (localStorage.listWords) {
+      //   commit('SET_WORDS', JSON.parse(localStorage.getItem("listWords")))
+      // }
       let listWords = [];
 
       var first = fb.wordsCollection
@@ -73,7 +73,7 @@ export default {
         // console.log(listWords)
         commit('SET_LOADER', false)
         commit('SET_WORDS', listWords)
-        localStorage.setItem("listWords", JSON.stringify(listWords));
+        // localStorage.setItem("listWords", JSON.stringify(listWords));
       })
 
 

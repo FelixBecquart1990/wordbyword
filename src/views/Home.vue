@@ -112,14 +112,17 @@
                     </v-list-tile-content>
 
                     <v-list-tile-content
-                      style="width:60px;padding-left:15px;position:absolute; right:5px;padding-top:20px;"
+                      style="width:82px;padding-left:15px;position:absolute; right:5px;padding-top:5px;"
                     >
-                      <v-switch
+                      <!-- <v-switch
                         color="primary"
-                        value
                         :input-value="wordIsBeingLearned(index)"
                         @click="switcher(index, word)"
-                      ></v-switch>
+                      ></v-switch> -->
+                      <label class="switch">
+                        <input type="checkbox" :checked="wordIsBeingLearned(index)" @click="switcher(index, word)">
+                        <span class="slider round"></span>
+                      </label>
                     </v-list-tile-content>
                   </v-list-tile>
                 </transition>
@@ -478,5 +481,69 @@ export default {
 /* .slide-fade-leave-active below version 2.1.8 */ {
   transform: translateY(-10px);
   opacity: 0;
+}
+
+
+
+
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 58px;
+  height: 34px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .2s;
+  transition: .2s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 24px;
+  width: 24px;
+  left: 4px;
+  bottom: 3px;
+  background-color: white;
+  -webkit-transition: .2s;
+  transition: .2s;
+}
+
+input:checked + .slider {
+  background-color: #5EBCEE;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #5EBCEE;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
 }
 </style>
